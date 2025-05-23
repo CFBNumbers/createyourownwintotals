@@ -8,7 +8,7 @@ library(bslib)
 thematic::thematic_shiny(font = "auto")
 options(warn = -1)
 
-df <- read.csv("games25.csv")
+df <- read.csv("https://raw.githubusercontent.com/CFBNumbers/createyourownwintotals/refs/heads/main/games25.csv")
 
 ui <- fluidPage(
   theme = bs_theme(
@@ -43,6 +43,16 @@ ui <- fluidPage(
                             label = "Add Name Or Socials To Table:",
                             value = "",
                             rows = 2
+                          ),
+                          tags$hr(),
+                          tags$a(
+                            href = "https://buymeacoffee.com/cfbnumbers",
+                            target = "_blank",
+                            tags$img(
+                              src = "https://archive.org/download/buy-me-a-coffee-logo-6100/buy-me-a-coffee-logo-6100.png",
+                              style = "max-width: 100%; height: auto;",
+                              alt = "Buy me a coffee"
+                            )
                           )
                         ),
                         mainPanel(
@@ -119,6 +129,3 @@ server <- function(input, output, session) {
 }
 
 shinyApp(ui, server)
-
-
-
