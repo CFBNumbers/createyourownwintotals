@@ -2,21 +2,43 @@ library(shiny)
 library(gt)
 library(tidyverse) 
 library(cfbplotR)
+library(thematic)
+library(renv)
+library(bslib)
+thematic::thematic_shiny(font = "auto")
 options(warn = -1)
 
 
 df <- read.csv("games25.csv")
 
-df <- df %>%
-  mutate(opp = ifelse(location == "Home", paste0("Week ", Week, " vs. ", opp), paste0("Week ", Week, " @ ", opp)))
 
 ui <- fluidPage(
+  theme = bs_theme(
+    bg = "#FFFFFF", fg = "black",
+    bootswatch = "spacelab", 
+    primary = "#FCC780", 
+    base_font = font_google("Space Mono"),
+    code_font = font_google("Space Mono")
+  ),
+  
+  navbarPage("@CFBNumbers",
+             tabPanel("Create Your Own Win Total!",
+                      fluidRow(
+                        column(2, align = "center",
+                               tags$h5(" "),
+                               tags$style(type="text/css",
+                                          ".shiny-output-error { visibility: hidden; }",
+                                          ".shiny-output-error:before { visibility: hidden; }"
+                               )
+                        )
+                      ),
   sidebarLayout(
     sidebarPanel(
       selectInput(
         inputId = "team_select",
         label = "Choose a team:",
-        choices = unique(df$team)
+        choices = unique(df$team),
+        selected = "Florida State"
       )
     ),
     mainPanel(
@@ -24,6 +46,8 @@ ui <- fluidPage(
       gt_output("results_table")
     )
   )
+)
+)
 )
 
 server <- function(input, output, session) {
@@ -54,11 +78,12 @@ server <- function(input, output, session) {
   output$results_table <- render_gt({
     this_df <- filtered_df()
     vals <- slider_vals()
-    if (is.null(vals) || length(vals) != nrow(this_df)) return(gt(data.frame()))
+    vals_num <- unlist(vals)
+    if (is.null(vals_num) || length(vals_num) != nrow(this_df) || length(vals_num) == 0) return(gt(data.frame()))
     table_data <- this_df %>%
       select(Week, team, opp, school2) %>%
       mutate(
-        odds = vals/100,
+        odds = vals_num / 100,
         school2 = ifelse(school2 == "East Texas A&M", "Texas A&M-Commerce", school2)
       )
     sum_val <- sum(vals/100, na.rm = TRUE)
@@ -71,12 +96,12 @@ server <- function(input, output, session) {
                  team = "",
                  opp = "Game",
                  school2 = "",
-                 odds = "My Odds") %>%
+                 odds = "My Odds To Win") %>%
       fmt_percent(
         columns = c(odds),
         decimals = 0
       ) %>%
-      tab_options(heading.title.font.size = 35,
+      tab_options(heading.title.font.size = 30,
                   heading.subtitle.font.size = 20) %>%
       tab_source_note(source_note = md("**Table**: @CFBNumbers | **Data**: @CFB_Data with @cfbfastR")) %>%
       gt_theme_538() %>% 
@@ -85,7 +110,6 @@ server <- function(input, output, session) {
 }
 
 shinyApp(ui, server)
-
 
 
 
