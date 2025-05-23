@@ -56,6 +56,7 @@ ui <- fluidPage(
                           )
                         ),
                         mainPanel(
+                          tags$h4("Select Your % Odds To Win Each Game"),
                           uiOutput("dynamic_sliders"),
                           gt_output("results_table")
                         )
@@ -129,3 +130,5 @@ server <- function(input, output, session) {
 }
 
 shinyApp(ui, server)
+
+
