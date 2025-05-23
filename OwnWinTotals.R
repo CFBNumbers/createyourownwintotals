@@ -8,9 +8,7 @@ library(bslib)
 thematic::thematic_shiny(font = "auto")
 options(warn = -1)
 
-
 df <- read.csv("games25.csv")
-
 
 ui <- fluidPage(
   theme = bs_theme(
@@ -32,22 +30,28 @@ ui <- fluidPage(
                                )
                         )
                       ),
-  sidebarLayout(
-    sidebarPanel(
-      selectInput(
-        inputId = "team_select",
-        label = "Choose a team:",
-        choices = unique(df$team),
-        selected = "Florida State"
-      )
-    ),
-    mainPanel(
-      uiOutput("dynamic_sliders"),
-      gt_output("results_table")
-    )
+                      sidebarLayout(
+                        sidebarPanel(
+                          selectInput(
+                            inputId = "team_select",
+                            label = "Choose a team:",
+                            choices = unique(df$team),
+                            selected = "Florida State"
+                          ),
+                          textAreaInput(
+                            inputId = "custom_footnote",
+                            label = "Add Name Or Socials To Table:",
+                            value = "",
+                            rows = 2
+                          )
+                        ),
+                        mainPanel(
+                          uiOutput("dynamic_sliders"),
+                          gt_output("results_table")
+                        )
+                      )
+             )
   )
-)
-)
 )
 
 server <- function(input, output, session) {
@@ -103,9 +107,14 @@ server <- function(input, output, session) {
       ) %>%
       tab_options(heading.title.font.size = 30,
                   heading.subtitle.font.size = 20) %>%
-      tab_source_note(source_note = md("**Table**: @CFBNumbers | **Data**: @CFB_Data with @cfbfastR")) %>%
       gt_theme_538() %>% 
-      opt_align_table_header(align = "center")
+      opt_align_table_header(align = "center") %>%
+      {
+        if(nzchar(input$custom_footnote)) {
+          tab_source_note(., source_note = md(paste("**Odds By:**", input$custom_footnote)))
+        } else .
+      } %>%
+      tab_source_note(source_note = md("**Table**: @CFBNumbers | **Data**: @CFB_Data with @cfbfastR"))
   })
 }
 
