@@ -5,6 +5,8 @@ library(cfbplotR)
 library(thematic)
 library(renv)
 library(bslib)
+library(gtExtras)
+library(glue)
 thematic::thematic_shiny(font = "auto")
 options(warn = -1)
 
@@ -42,21 +44,21 @@ ui <- fluidPage(
                             inputId = "custom_footnote",
                             label = "Add Name Or Socials To Table:",
                             value = "",
-                            rows = 2
+                            rows = 1
                           ),
                           tags$hr(),
                           tags$a(
                             href = "https://buymeacoffee.com/cfbnumbers",
                             target = "_blank",
                             tags$img(
-                              src = "https://archive.org/download/buy-me-a-coffee-logo-6100/buy-me-a-coffee-logo-6100.png",
+                              src = "https://miro.medium.com/v2/resize:fit:1090/0*lHgOW3tB_MfDAlBf.png",
                               style = "max-width: 100%; height: auto;",
                               alt = "Buy me a coffee"
                             )
                           )
                         ),
                         mainPanel(
-                          tags$h4("Select Your % Odds To Win Each Game"),
+                          tags$h4("Select Your % Odds To Win Each Game", style = "font-size: 20px;"),
                           uiOutput("dynamic_sliders"),
                           gt_output("results_table")
                         )
@@ -107,11 +109,11 @@ server <- function(input, output, session) {
       tab_header(title = html(glue::glue("<strong>{unique(this_df$team)} 2025 Season")),
                  subtitle = html(glue::glue("<em>My Projected Wins: {sum_val}"))) %>%
       gt_fmt_cfb_logo(columns = c(team, school2), height = 50) %>%
-      cols_label(Week = "Week", 
+      cols_label(Week = md("**Week**"), 
                  team = "",
-                 opp = "Game",
+                 opp = md("**Game**"),
                  school2 = "",
-                 odds = "My Odds To Win") %>%
+                 odds = md("**My Odds To Win**")) %>%
       fmt_percent(
         columns = c(odds),
         decimals = 0
@@ -130,5 +132,4 @@ server <- function(input, output, session) {
 }
 
 shinyApp(ui, server)
-
 
