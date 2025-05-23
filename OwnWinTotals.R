@@ -7,6 +7,8 @@ library(renv)
 library(bslib)
 library(gtExtras)
 library(glue)
+library(webshot2)
+library(chromote)
 thematic::thematic_shiny(font = "auto")
 options(warn = -1)
 
@@ -47,13 +49,16 @@ ui <- fluidPage(
                             rows = 1
                           ),
                           tags$hr(),
-                          tags$a(
-                            href = "https://buymeacoffee.com/cfbnumbers",
-                            target = "_blank",
-                            tags$img(
-                              src = "https://miro.medium.com/v2/resize:fit:1090/0*lHgOW3tB_MfDAlBf.png",
-                              style = "max-width: 100%; height: auto;",
-                              alt = "Buy me a coffee"
+                          div(
+                            style = "text-align: center;",
+                            tags$a(
+                              href = "https://buymeacoffee.com/cfbnumbers",
+                              target = "_blank",
+                              tags$img(
+                                src = "https://miro.medium.com/v2/resize:fit:1090/0*lHgOW3tB_MfDAlBf.png",
+                                style = "width: 150px; height: auto;",
+                                alt = "Buy me a coffee"
+                              )
                             )
                           )
                         ),
@@ -108,7 +113,7 @@ server <- function(input, output, session) {
       cols_align(align = "center") %>% 
       tab_header(title = html(glue::glue("<strong>{unique(this_df$team)} 2025 Season")),
                  subtitle = html(glue::glue("<em>My Projected Wins: {sum_val}"))) %>%
-      gt_fmt_cfb_logo(columns = c(team, school2), height = 50) %>%
+      gt_fmt_cfb_logo(columns = c(team, school2), height = 30) %>%
       cols_label(Week = md("**Week**"), 
                  team = "",
                  opp = md("**Game**"),
@@ -118,9 +123,17 @@ server <- function(input, output, session) {
         columns = c(odds),
         decimals = 0
       ) %>%
-      tab_options(heading.title.font.size = 30,
-                  heading.subtitle.font.size = 20) %>%
+      tab_options(
+        data_row.padding = px(1)) %>%
+      cols_width(
+        team ~ px(10),
+        opp ~ px(200),
+        school2 ~ px(10)
+      ) %>%
       gt_theme_538() %>% 
+      tab_options(heading.title.font.size = 20,
+                  heading.subtitle.font.size = 15,
+                  table.font.size = 12) %>%
       opt_align_table_header(align = "center") %>%
       {
         if(nzchar(input$custom_footnote)) {
